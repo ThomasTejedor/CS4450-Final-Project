@@ -12,11 +12,11 @@ import org.lwjgl.util.glu.GLU;
 
 /**
  * file: FinalProject.java
- * authors: J. Fabel
+ * authors: Pixel Pioneers
  * class: CS 4450
  * 
  * assignment: Final Project - Checkpoint 1
- * date last modified: 4/04/2024
+ * date last modified: 4/08/2024
  * 
  * purpose: Creates a 640x480 window that renders a 3D cube, and allows the user to move
  *          around using WASD keys and the mouse.

@@ -6,7 +6,7 @@ package finalproject;
 
 /**
  *
- * @author joseph
+ * @author PixelPioneers
  */
 public class Vector3<T extends Number> {
     public T x, y, z;

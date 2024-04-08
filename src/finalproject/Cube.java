@@ -9,7 +9,7 @@ import org.lwjgl.util.Color;
 
 /**
  *
- * @author joseph
+ * @author PixelPioneers
  */
 public class Cube {
     // Notes - this will be replaced during checkpoint 2

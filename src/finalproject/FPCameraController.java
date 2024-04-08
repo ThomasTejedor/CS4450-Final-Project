@@ -13,7 +13,7 @@ import org.lwjgl.Sys;
 
 /**
  *
- * @author joseph
+ * @author PixelPioneers
  */
 public class FPCameraController {
     // 3D vector to store the camera's position
