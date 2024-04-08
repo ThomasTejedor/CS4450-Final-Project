@@ -12,7 +12,7 @@ import org.lwjgl.util.glu.GLU;
 
 /**
  * file: FinalProject.java
- * authors: Pixel Pioneers
+ * authors: Pixel Pioneers (J. Fabel, T. Tejedor, C. Kim)
  * class: CS 4450
  * 
  * assignment: Final Project - Checkpoint 1
