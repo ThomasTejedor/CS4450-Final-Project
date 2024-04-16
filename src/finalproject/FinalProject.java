@@ -28,12 +28,11 @@ public class FinalProject {
     
     // method: start
     // purpose: Creates and initializes the window, and then renders the primitives inside
-    public void start() {
-         fp = new FPCameraController(0f, 1f, 10f);
-        
+    public void start() {        
         try {
             createWindow();
             initGL();
+            fp = new FPCameraController(0f, 1f, 10f);
             fp.gameLoop();
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,6 +67,8 @@ public class FinalProject {
         
         GLU.gluPerspective(100f, (float)displayMode.getWidth() / (float)displayMode.getHeight(), 0.1f, 300f);
         
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
         glEnable(GL_DEPTH_TEST);
         
         glMatrixMode(GL_MODELVIEW);
