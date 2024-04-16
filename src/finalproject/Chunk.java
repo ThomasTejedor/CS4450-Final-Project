@@ -23,6 +23,8 @@ public class Chunk {
     private int startX, startY, startZ;
     private Random r;
     
+    // method: render
+    // purpose: Draws the chunk on the screen, displaying 900 cubes at once
     public void render() {
         glPushMatrix();
             glBindBuffer(GL_ARRAY_BUFFER, vboVertexHandle);
@@ -33,6 +35,8 @@ public class Chunk {
         glPopMatrix();
     }
     
+    // method: rebuildMesh
+    // purpose: Recreates the Vertex Buffer Objects so that they are ready to render
     public void rebuildMesh(float startX, float startY, float startZ) {
         vboColorHandle = glGenBuffers();
         vboVertexHandle = glGenBuffers();
@@ -65,6 +69,8 @@ public class Chunk {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
     
+    // method: createCubeVertexCol
+    // purpose: Creates an array of cube colors to use
     private float[] createCubeVertexCol(float[] cubeColorArray) {
         float cubeColors[] = new float[cubeColorArray.length * 4 * 6];
         
@@ -75,6 +81,8 @@ public class Chunk {
         return cubeColors;
     }
     
+    // method: createCube
+    // purpose: Creates a new cube as an array of floats, ready to be added to a VBO
     public static float[] createCube(float x, float y, float z) {
         int offset = CUBE_LENGTH / 2;
         return new float[] {
@@ -111,6 +119,8 @@ public class Chunk {
         };
     }
     
+    // method: getCubeColor
+    // purpose: Gets the color of a Block based on its type
     private float[] getCubeColor(Block block) {
         switch (block.getID()) {
             case 1 -> {
@@ -127,6 +137,8 @@ public class Chunk {
         return new float[] {1, 1, 1};
     }
     
+    // method: Constructor
+    // purpose: Creates a new Chunk at the given coordinates
     public Chunk(int startX, int startY, int startZ) {
         r = new Random();
         blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
