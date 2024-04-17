@@ -25,7 +25,7 @@ public class FPCameraController {
     // Rotation around the Y axis of the camera
     private float pitch = 0.0f;
         
-    private Cube myCube;
+    private Chunk myChunk;
     
     // method: constructor
     // purpose: Initializes a new FPCameraController so that it is ready to render on our screen
@@ -36,7 +36,7 @@ public class FPCameraController {
         IPosition.y = 15f;
         IPosition.z = 0f;
         
-        myCube = new Cube();
+        myChunk = new Chunk((int)x, (int)y, (int)z);
     }
     
     // method: yaw
@@ -176,8 +176,8 @@ public class FPCameraController {
     // method: render
     // purpose: Draws a cube in our 3D world
     private void render() {
-        try {
-            myCube.draw();
+        try {            
+            myChunk.render();
         } catch (Exception e) {
             
         }
