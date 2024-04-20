@@ -186,43 +186,141 @@ public class Chunk {
         
         float offset = (1024f/16)/1024f;
         
+        Vector3 topQuadCoord = new Vector3(0,0,0);
+        Vector3 bottomQuadCoord = new Vector3(0,0,0);
+        Vector3 rightQuadCoord = new Vector3(0,0,0);
+        Vector3 leftQuadCoord = new Vector3(0,0,0);
+        Vector3 frontQuadCoord = new Vector3(0,0,0);
+        Vector3 backQuadCoord = new Vector3(0,0,0);
+        
+        //For each quad give bottom right pixel coord in texture grid
         switch(block.getID()) {
             
-            
-            
+            //grass block
+            case 0:
+                topQuadCoord.x = 3;
+                topQuadCoord.y = 10;
+                bottomQuadCoord.x = 3; 
+                bottomQuadCoord.y = 1;
+                rightQuadCoord.x = 4;
+                rightQuadCoord.y = 1;
+                leftQuadCoord.x = 4;
+                leftQuadCoord.y = 1;
+                frontQuadCoord.x = 4;
+                frontQuadCoord.y = 1;
+                backQuadCoord.x = 4;
+                backQuadCoord.y = 1;
+                break;
+            //sand
+            case 1:
+                topQuadCoord.x = 3;
+                topQuadCoord.y = 2;
+                bottomQuadCoord.x = 3; 
+                bottomQuadCoord.y = 2;
+                rightQuadCoord.x = 3;
+                rightQuadCoord.y = 2;
+                leftQuadCoord.x = 3;
+                leftQuadCoord.y = 2;
+                frontQuadCoord.x = 3;
+                frontQuadCoord.y = 2;
+                backQuadCoord.x = 3;
+                backQuadCoord.y = 2;
+                break;
+            //water
+            case 2:
+                topQuadCoord.x = 14;
+                topQuadCoord.y = 13;
+                bottomQuadCoord.x = 14; 
+                bottomQuadCoord.y = 13;
+                rightQuadCoord.x = 14;
+                rightQuadCoord.y = 13;
+                leftQuadCoord.x = 14;
+                leftQuadCoord.y = 13;
+                frontQuadCoord.x = 14;
+                frontQuadCoord.y = 13;
+                backQuadCoord.x = 14;
+                backQuadCoord.y = 13;
+            //dirt
+                break;
+            //stone
+            case 3:
+                topQuadCoord.x = 2;
+                topQuadCoord.y = 1;
+                bottomQuadCoord.x = 2; 
+                bottomQuadCoord.y = 1;
+                rightQuadCoord.x = 2;
+                rightQuadCoord.y = 1;
+                leftQuadCoord.x = 2;
+                leftQuadCoord.y = 1;
+                frontQuadCoord.x = 2;
+                frontQuadCoord.y = 1;
+                backQuadCoord.x = 2;
+                backQuadCoord.y = 1;
+                break;
+            //bedrock
+            case 4:
+                topQuadCoord.x = 2;
+                topQuadCoord.y = 2;
+                bottomQuadCoord.x = 2; 
+                bottomQuadCoord.y = 2;
+                rightQuadCoord.x = 2;
+                rightQuadCoord.y = 2;
+                leftQuadCoord.x = 2;
+                leftQuadCoord.y = 2;
+                frontQuadCoord.x = 2;
+                frontQuadCoord.y = 2;
+                backQuadCoord.x = 2;
+                backQuadCoord.y = 2;
+                break;
             default:
-                return new float[] {
-                // BOTTOM QUAD(DOWN=+Y)
-                x + offset*3, y + offset*10,
-                x + offset*2, y + offset*10,
-                x + offset*2, y + offset*9,
-                x + offset*3, y + offset*9,
-                // TOP!
-                x + offset*3, y + offset*1,
-                x + offset*2, y + offset*1,
-                x + offset*2, y + offset*0,
-                x + offset*3, y + offset*0,
-                // FRONT QUAD
-                x + offset*3, y + offset*0,
-                x + offset*4, y + offset*0,
-                x + offset*4, y + offset*1,
-                x + offset*3, y + offset*1,
-                // BACK QUAD
-                x + offset*4, y + offset*1,
-                x + offset*3, y + offset*1,
-                x + offset*3, y + offset*0,
-                x + offset*4, y + offset*0,
-                // LEFT QUAD
-                x + offset*3, y + offset*0,
-                x + offset*4, y + offset*0,
-                x + offset*4, y + offset*1,
-                x + offset*3, y + offset*1,
-                // RIGHT QUAD
-                x + offset*3, y + offset*0,
-                x + offset*4, y + offset*0,
-                x + offset*4, y + offset*1,
-                x + offset*3, y + offset*1};
-        }
-        
+            {
+                topQuadCoord.x = 7;
+                topQuadCoord.y = 14;
+                bottomQuadCoord.x = 7; 
+                bottomQuadCoord.y = 14;
+                rightQuadCoord.x = 7;
+                rightQuadCoord.y = 14;
+                leftQuadCoord.x = 7;
+                leftQuadCoord.y = 14;
+                frontQuadCoord.x = 7;
+                frontQuadCoord.y = 14;
+                backQuadCoord.x = 7;
+                backQuadCoord.y = 14;
+                                          
+            }
+        }  
+        return new float[] {
+                // TOP QUAD(DOWN=+Y)
+                x + offset*(int)topQuadCoord.x, y + offset*(int)topQuadCoord.y, //bottom right coord
+                x + offset*((int)topQuadCoord.x-1), y + offset*(int)topQuadCoord.y, //bottom left coord
+                x + offset*((int)topQuadCoord.x-1), y + offset*((int)topQuadCoord.y-1), //top left coord
+                x + offset*(int)topQuadCoord.x, y + offset*((int)topQuadCoord.y-1), //top right coord
+                //BOTTOM QUAD
+                x + offset*(int)bottomQuadCoord.x, y + offset*(int)bottomQuadCoord.y, //bottom right coord
+                x + offset*((int)bottomQuadCoord.x-1), y + offset*(int)bottomQuadCoord.y, //bottom left coord
+                x + offset*((int)bottomQuadCoord.x-1), y + offset*((int)bottomQuadCoord.y-1), //top left coord
+                x + offset*(int)bottomQuadCoord.x, y + offset*((int)bottomQuadCoord.y-1), //top right coord
+                //FRONT QUAD
+                x + offset*((int)frontQuadCoord.x-1), y + offset*((int)frontQuadCoord.y-1), //top left coord
+                x + offset*(int)frontQuadCoord.x, y + offset*((int)frontQuadCoord.y-1), //top right coord
+                x + offset*(int)frontQuadCoord.x, y + offset*(int)frontQuadCoord.y, //bottom right coord
+                x + offset*((int)frontQuadCoord.x-1), y + offset*(int)frontQuadCoord.y, //bottom left coord
+                //BACK QUAD(DOWN=+Y)
+                x + offset*(int)backQuadCoord.x, y + offset*(int)backQuadCoord.y, //bottom right coord
+                x + offset*((int)backQuadCoord.x-1), y + offset*(int)backQuadCoord.y, //bottom left coord
+                x + offset*((int)backQuadCoord.x-1), y + offset*((int)backQuadCoord.y-1), //top left coord
+                x + offset*(int)backQuadCoord.x, y + offset*((int)backQuadCoord.y-1), //top right coord
+                //LEFT QUAD
+                x + offset*((int)frontQuadCoord.x-1), y + offset*((int)frontQuadCoord.y-1), //top left coord
+                x + offset*(int)frontQuadCoord.x, y + offset*((int)frontQuadCoord.y-1), //top right coord
+                x + offset*(int)frontQuadCoord.x, y + offset*(int)frontQuadCoord.y, //bottom right coord
+                x + offset*((int)frontQuadCoord.x-1), y + offset*(int)frontQuadCoord.y, //bottom left coord
+                //RIGHT QUAD
+                x + offset*((int)frontQuadCoord.x-1), y + offset*((int)frontQuadCoord.y-1), //top left coord
+                x + offset*(int)frontQuadCoord.x, y + offset*((int)frontQuadCoord.y-1), //top right coord
+                x + offset*(int)frontQuadCoord.x, y + offset*(int)frontQuadCoord.y, //bottom right coord
+                x + offset*((int)frontQuadCoord.x-1), y + offset*(int)frontQuadCoord.y, //bottom left coord
+        };
+       
     }
 }
