@@ -10,6 +10,8 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.Sys;
+import org.lwjgl.BufferUtils;
+import java.nio.FloatBuffer;
 
 /**
  *
@@ -59,6 +61,8 @@ public class FPCameraController {
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw));
         position.x -= xOffset;
         position.z += zOffset;
+        
+        
     }
     
     // method: walkBackwards
@@ -77,6 +81,9 @@ public class FPCameraController {
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw - 90));
         position.x -= xOffset;
         position.z += zOffset;
+        
+        FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
+        
     }
     
     // method: strafeRight
@@ -86,6 +93,9 @@ public class FPCameraController {
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw + 90));
         position.x -= xOffset;
         position.z += zOffset;
+        
+        FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
+        
     }
     
     // method: moveUp
@@ -103,12 +113,18 @@ public class FPCameraController {
     // method: lookThrough
     // purpose: Translates and rotates the matrix so that it looks through the camera
     public void lookThrough() {
+     
         // rotate the pitch around the X axis
         glRotatef(pitch, 1f, 0f, 0f);
         // rotate the yaw around the Y axis
         glRotatef(yaw, 0f, 1f, 0f);
         // translate to the position vector's location
         glTranslatef(position.x, position.y, position.z);
+        
+        FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
+        lightPosition.put(40.0f).put(
+                50.0f).put(40.0f).put(1.0f).flip();
+        glLight(GL_LIGHT0,GL_POSITION,lightPosition);
     }
     
     // method: gameLoop
@@ -133,7 +149,6 @@ public class FPCameraController {
             
             dx = Mouse.getDX();
             dy = Mouse.getDY();
-            
             camera.yaw(dx * mouseSensitivity);
             camera.pitch(dy * mouseSensitivity);
             

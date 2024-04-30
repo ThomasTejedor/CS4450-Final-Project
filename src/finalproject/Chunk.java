@@ -6,6 +6,7 @@ package finalproject;
 
 import java.nio.FloatBuffer;
 import java.util.Random;
+import java.util.Date;
 import org.lwjgl.BufferUtils;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -45,6 +46,16 @@ public class Chunk {
     // method: rebuildMesh
     // purpose: Recreates the Vertex Buffer Objects so that they are ready to render
     public void rebuildMesh(float startX, float startY, float startZ) {
+        
+        //Determines the random seed
+        int i =(int)(new Date().getTime()/100000);
+        Random r = new Random();
+        i += r.nextInt();
+        
+        //Creates the noise to map terrain
+        int minHeight = CHUNK_SIZE;
+        SimplexNoise noise = new SimplexNoise(minHeight,.1,i);
+        
         vboColorHandle = glGenBuffers();
         vboVertexHandle = glGenBuffers();
         VBOTextureHandle = glGenBuffers();
@@ -55,14 +66,20 @@ public class Chunk {
         
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int z = 0; z < CHUNK_SIZE; z++) {
-                for (int y = 0; y < CHUNK_SIZE; y++) {
+                int height = ((int)20 + (int)(15*noise.getNoise((int)x,(int)startY,(int)z)*CUBE_LENGTH));
+                for (int y = 0; y < height && y < CHUNK_SIZE; y++) {
+                    blocks[x][y][z] = getBlockType(x, y, z, height);
+                    
                     vertexPositionData.put(createCube(
                         (float)(startX + x * CUBE_LENGTH), 
                         (float)(y * CUBE_LENGTH + (int)(CHUNK_SIZE * .8)), 
                         (float)(startZ + z * CUBE_LENGTH)));
                     vertexColorData.put(createCubeVertexCol(
                         getCubeColor(blocks[x][y][z])));
-                    VertexTextureData.put(createTexCube((float)0,(float)0,blocks[(int)(x)][(int)(y)][(int)(z)]));
+                    VertexTextureData.put(createTexCube(
+                            (float)0,
+                            (float)0,
+                            blocks[(int)(x)][(int)(y)][(int)(z)]));
                 }
             }
         }
@@ -147,7 +164,7 @@ public class Chunk {
     // method: Constructor
     // purpose: Creates a new Chunk at the given coordinates
     public Chunk(int startX, int startY, int startZ) {
-        
+       
         try{texture = TextureLoader.getTexture("PNG", 
                 ResourceLoader.getResourceAsStream("terrain.png"));
         } catch(Exception e) {
@@ -155,22 +172,6 @@ public class Chunk {
         }
         r = new Random();
         blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
-        
-        for (int x = 0; x < CHUNK_SIZE; x++) {
-            for (int y = 0; y < CHUNK_SIZE; y++) {
-                for (int z = 0; z < CHUNK_SIZE; z++) {
-                    if (r.nextFloat() > 0.7f) {
-                        blocks[x][y][z] = new Block(Block.BlockType.Block_Grass);                        
-                    } else if (r.nextFloat() > 0.4f) {
-                        blocks[x][y][z] = new Block(Block.BlockType.Block_Dirt);
-                    } else if (r.nextFloat() > 0.2f) {
-                        blocks[x][y][z] = new Block(Block.BlockType.Block_Water);
-                    } else {
-                        blocks[x][y][z] = new Block(Block.BlockType.Block_Stone);
-                    }
-                }
-            }
-        }
         
         vboColorHandle = glGenBuffers();
         vboVertexHandle = glGenBuffers();
@@ -182,6 +183,33 @@ public class Chunk {
         rebuildMesh(startX, startY, startZ);
     }
     
+    private Block getBlockType(int x, int y, int z, int height) {
+        // Only place grass, sand, or water at the topmost level
+        // Only place dirt or stone below
+        // Only place bedrock at the very bottom        
+        if (y == 0) { // Block is on the bottom-most level
+            return new Block(Block.BlockType.Block_Bedrock);
+        } else if (y == height - 1) { // block is on the top-most level
+            float rand = r.nextFloat();
+            if (rand > 2f / 3) {
+                return new Block(Block.BlockType.Block_Grass);
+            } else if (rand > 1f / 3) {
+                return new Block(Block.BlockType.Block_Sand);
+            } else {
+                return new Block(Block.BlockType.Block_Water);
+            }
+        } else { // Block is between top-most and bottom-most levels
+            float rand = r.nextFloat();
+            if (rand > 0.5f) {
+                return new Block(Block.BlockType.Block_Dirt);
+            } else {
+                return new Block(Block.BlockType.Block_Stone);
+            }
+        }
+    }
+    
+    // method: createTexCube
+    // purpose: Textures the cube based on its block type
     public static float[] createTexCube(float x, float y, Block block) {
         
         float offset = (1024f/16)/1024f;
@@ -240,9 +268,8 @@ public class Chunk {
                 frontQuadCoord.y = 13;
                 backQuadCoord.x = 14;
                 backQuadCoord.y = 13;
-            //dirt
                 break;
-            //stone
+            //dirt
             case 3:
                 topQuadCoord.x = 2;
                 topQuadCoord.y = 1;
@@ -257,8 +284,23 @@ public class Chunk {
                 backQuadCoord.x = 2;
                 backQuadCoord.y = 1;
                 break;
-            //bedrock
+            //stone
             case 4:
+                topQuadCoord.x = 3;
+                topQuadCoord.y = 1;
+                bottomQuadCoord.x = 3; 
+                bottomQuadCoord.y = 1;
+                rightQuadCoord.x = 3;
+                rightQuadCoord.y = 1;
+                leftQuadCoord.x = 3;
+                leftQuadCoord.y = 1;
+                frontQuadCoord.x = 3;
+                frontQuadCoord.y = 1;
+                backQuadCoord.x = 3;
+                backQuadCoord.y = 1;
+                break;
+            //bedrock
+            case 5:
                 topQuadCoord.x = 2;
                 topQuadCoord.y = 2;
                 bottomQuadCoord.x = 2; 
