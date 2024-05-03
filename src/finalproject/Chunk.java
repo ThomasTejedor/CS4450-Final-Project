@@ -72,7 +72,7 @@ public class Chunk {
                     
                     vertexPositionData.put(createCube(
                         (float)(startX + x * CUBE_LENGTH), 
-                        (float)(y * CUBE_LENGTH + (int)(CHUNK_SIZE * .8)), 
+                        (float)(startY + y * CUBE_LENGTH/* + (int)(CHUNK_SIZE * .8)*/), 
                         (float)(startZ + z * CUBE_LENGTH)));
                     vertexColorData.put(createCubeVertexCol(
                         getCubeColor(blocks[x][y][z])));
@@ -81,6 +81,7 @@ public class Chunk {
                             (float)0,
                             blocks[(int)(x)][(int)(y)][(int)(z)]));
                 }
+                // blocks above the height should be null
             }
         }
         
@@ -159,6 +160,59 @@ public class Chunk {
     private float[] getCubeColor(Block block) {
         
         return new float[] {1, 1, 1};
+    }
+    
+    public boolean checkForCollision(float playerX, float playerY, float playerZ) {
+        // Get the player's bounding box, assuming it is the same size as the cubes
+        float playerMinX = playerX - 1;
+        float playerMaxX = playerX + 1;
+        float playerMinY = playerY - 1;
+        float playerMaxY = playerY + 1;
+        float playerMinZ = playerZ - 1;
+        float playerMaxZ = playerZ + 1;               
+        
+        // See if there is a block at the current position
+        int blockX = (int)((playerX - startX) / CUBE_LENGTH);
+        int blockY = (int)((playerY - startY) / CUBE_LENGTH);
+        int blockZ = (int)((playerZ - startZ) / CUBE_LENGTH);
+        
+        System.out.println("Player is at block: (" + blockX + ", " + blockY + ", " + blockZ + ")");
+        
+        if (blockX >= 0 && blockY >= 0 && blockZ >= 0) {
+            return (blocks[blockX][blockY][blockZ] != null);           
+        } else {
+            return false;
+        }
+        /*
+        // Check for collision with each block in the chunk
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            for (int y = 0; y < CHUNK_SIZE; y++) {
+                for (int z = 0; z < CHUNK_SIZE; z++) {
+                    // If the block is not null, check for collision
+                    if (blocks[x][y][z] != null) {
+                        float blockMinX = startX + x * CUBE_LENGTH;
+                        float blockMaxX = startX + (x + 1) * CUBE_LENGTH;
+                        float blockMinY = y * CUBE_LENGTH;
+                        float blockMaxY = (y + 1) * CUBE_LENGTH;
+                        float blockMinZ = startZ + z * CUBE_LENGTH;
+                        float blockMaxZ = startZ + (z + 1) * CUBE_LENGTH;
+
+                        // Check if the player's bounding box intersects with the block's bounding box
+                        if (playerMaxX > blockMinX && playerMinX < blockMaxX &&
+                            playerMaxY > blockMinY && playerMinY < blockMaxY &&
+                            playerMaxZ > blockMinZ && playerMinZ < blockMaxZ) {
+                            
+                            System.out.println("Collision!");
+                            // Collision detected
+                            return true;
+                        }
+                    }
+                }
+            }
+        } */
+        
+        // No collision
+//        return false;
     }
     
     // method: Constructor
@@ -362,7 +416,7 @@ public class Chunk {
                 x + offset*(int)frontQuadCoord.x, y + offset*((int)frontQuadCoord.y-1), //top right coord
                 x + offset*(int)frontQuadCoord.x, y + offset*(int)frontQuadCoord.y, //bottom right coord
                 x + offset*((int)frontQuadCoord.x-1), y + offset*(int)frontQuadCoord.y, //bottom left coord
-        };
-       
+        };       
     }
+       
 }

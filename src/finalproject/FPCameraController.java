@@ -18,6 +18,8 @@ import java.nio.FloatBuffer;
  * @author PixelPioneers
  */
 public class FPCameraController {
+    private final float GRAVITY = 0.5f;
+
     // 3D vector to store the camera's position
     private Vector3<Float> position = null;
     private Vector3<Float> IPosition = null;
@@ -36,7 +38,7 @@ public class FPCameraController {
         IPosition = new Vector3<>(x, y, z);
         IPosition.x = 0f;
         IPosition.y = 15f;
-        IPosition.z = 0f;
+        IPosition.z = 0f;              
         
         myChunk = new Chunk((int)x, (int)y, (int)z);
     }
@@ -80,10 +82,7 @@ public class FPCameraController {
         float xOffset = distance * (float)Math.sin(Math.toRadians(yaw - 90));
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw - 90));
         position.x -= xOffset;
-        position.z += zOffset;
-        
-        FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
-        
+        position.z += zOffset;                
     }
     
     // method: strafeRight
@@ -92,10 +91,7 @@ public class FPCameraController {
         float xOffset = distance * (float)Math.sin(Math.toRadians(yaw + 90));
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw + 90));
         position.x -= xOffset;
-        position.z += zOffset;
-        
-        FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
-        
+        position.z += zOffset;                
     }
     
     // method: moveUp
@@ -139,13 +135,18 @@ public class FPCameraController {
         float mouseSensitivity = 0.09f;
         float movementSpeed = .35f;
         
+        dt = 1 / 60f;
+        
         // hide the mouse
         Mouse.setGrabbed(true);
         
         // keep looping until the display window is closed or the ESC key is down
         while (!Display.isCloseRequested() && !Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
             time = Sys.getTime();
+            dt = time - lastTime; // in ms
+//            System.out.println(time - lastTime);
             lastTime = time;
+            
             
             dx = Mouse.getDX();
             dy = Mouse.getDY();
@@ -169,12 +170,19 @@ public class FPCameraController {
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
                 camera.moveDown(movementSpeed);
+            } 
+            if (Keyboard.isKeyDown(Keyboard.KEY_E)) {
+                System.out.println("x: " + -camera.position.x + ", y: " + -camera.position.y + ", z: " + -camera.position.z);
+                
+                boolean collision = myChunk.checkForCollision(-camera.position.x, -camera.position.y, -camera.position.z);
+                System.out.println("Collision: " + collision);
             }
-            
+                        
             glLoadIdentity();
             
             // Look through the camera before drawing anything
-            camera.lookThrough();
+            camera.lookThrough();           
+            
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             // Draw scene here
