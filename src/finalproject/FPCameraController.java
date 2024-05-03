@@ -62,9 +62,17 @@ public class FPCameraController {
         float xOffset = distance * (float)Math.sin(Math.toRadians(yaw));
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw));
         position.x -= xOffset;
-        position.z += zOffset;
-        
-        
+        position.z += zOffset;                
+    }
+    
+    public float getWalkForwardsPositionX(float distance) {
+        float xOffset = distance * (float)Math.sin(Math.toRadians(yaw));
+        return position.x - xOffset;
+    }
+    
+    public float getWalkForwardsPositionZ(float distance) {
+        float zOffset = distance * (float)Math.cos(Math.toRadians(yaw));
+        return position.z + zOffset;
     }
     
     // method: walkBackwards
@@ -74,6 +82,16 @@ public class FPCameraController {
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw));
         position.x += xOffset;
         position.z -= zOffset;
+    }
+    
+    public float getWalkBackwardsPositionX(float distance) {
+        float xOffset = distance * (float)Math.sin(Math.toRadians(yaw));
+        return position.x + xOffset;
+    }
+    
+    public float getWalkBackwardsPositionZ(float distance) {
+        float zOffset = distance * (float)Math.cos(Math.toRadians(yaw));
+        return position.z - zOffset;
     }
     
     // method: strafeLeft
@@ -104,6 +122,14 @@ public class FPCameraController {
     // purpose: Moves the camera down
     public void moveDown(float distance) {
         position.y += distance;
+    }
+    
+    public float getMoveUpPosition(float distance) {
+        return position.y - distance;
+    }
+    
+    public float getMoveDownPosition(float distance) {
+        return position.y + distance;
     }
     
     // method: lookThrough
@@ -153,6 +179,8 @@ public class FPCameraController {
             camera.yaw(dx * mouseSensitivity);
             camera.pitch(dy * mouseSensitivity);
             
+            // Need to check if moving in the given direction will result in a collision
+            
             if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
                 camera.walkForwards(movementSpeed);
             }
@@ -166,10 +194,18 @@ public class FPCameraController {
                 camera.strafeRight(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-                camera.moveUp(movementSpeed);
+                float newY = camera.getMoveUpPosition(movementSpeed);
+                
+                boolean willHaveCollision = myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z);
+                
+                if (!willHaveCollision) camera.moveUp(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-                camera.moveDown(movementSpeed);
+                float newY = camera.getMoveDownPosition(movementSpeed);
+                
+                boolean willHaveCollision = myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z);
+                
+                if (!willHaveCollision) camera.moveDown(movementSpeed);
             } 
             if (Keyboard.isKeyDown(Keyboard.KEY_E)) {
                 System.out.println("x: " + -camera.position.x + ", y: " + -camera.position.y + ", z: " + -camera.position.z);

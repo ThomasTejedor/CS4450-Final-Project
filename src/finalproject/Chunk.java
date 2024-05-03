@@ -172,17 +172,43 @@ public class Chunk {
         float playerMaxZ = playerZ + 1;               
         
         // See if there is a block at the current position
-        int blockX = (int)((playerX - startX) / CUBE_LENGTH);
+        int blockX = (int)((playerX + 1 - startX) / CUBE_LENGTH);
         int blockY = (int)((playerY - startY) / CUBE_LENGTH);
         int blockZ = (int)((playerZ - startZ) / CUBE_LENGTH);
         
         System.out.println("Player is at block: (" + blockX + ", " + blockY + ", " + blockZ + ")");
         
         if (blockX >= 0 && blockY >= 0 && blockZ >= 0) {
-            return (blocks[blockX][blockY][blockZ] != null);           
-        } else {
-            return false;
+            if (blocks[blockX][blockY][blockZ] != null) {
+                System.out.println("Collision!");
+                
+                float offset = CUBE_LENGTH / 2;
+                
+                float cubeMinX = startX + blockX * CUBE_LENGTH - offset;
+                float cubeMaxX = startX + blockX * CUBE_LENGTH + offset;
+                float cubeMinY = startY + blockY * CUBE_LENGTH - offset;
+                float cubeMaxY = startY + blockY * CUBE_LENGTH + offset;
+                float cubeMinZ = startZ + blockZ * CUBE_LENGTH - offset;
+                float cubeMaxZ = startZ + blockZ * CUBE_LENGTH + offset;
+                
+//                System.out.println("[cubeMinX: " + cubeMinX + ", cubeMaxX: " + cubeMaxX + "]");
+//                System.out.println("[cubeMinY: " + cubeMinY + ", cubeMaxY: " + cubeMaxY + "]");
+//                System.out.println("[cubeMinZ: " + cubeMinZ + ", cubeMaxZ: " + cubeMaxZ + "]");
+//                
+//                if (playerMinX < cubeMaxX) System.out.println("Collision minX");
+//                else if (playerMaxX > cubeMinX) System.out.println("Collision maxX");
+//                
+//                if (playerMinY < cubeMaxY) System.out.println("Collision minY");
+//                else if (playerMaxY > cubeMinY) System.out.println("Collision maxY");
+//                
+//                if (playerMinZ < cubeMaxZ) System.out.println("Collision minZ");
+//                else if (playerMaxZ > cubeMinZ) System.out.println("Collision maxZ");
+                
+                return true;
+            }             
         }
+        
+        return false;
         /*
         // Check for collision with each block in the chunk
         for (int x = 0; x < CHUNK_SIZE; x++) {
