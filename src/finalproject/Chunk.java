@@ -174,7 +174,7 @@ public class Chunk {
         // See if there is a block at the current position
         int blockX = (int)((playerX + 1 - startX) / CUBE_LENGTH);
         int blockY = (int)((playerY - startY) / CUBE_LENGTH);
-        int blockZ = (int)((playerZ - startZ) / CUBE_LENGTH);
+        int blockZ = (int)((playerZ + 1 - startZ) / CUBE_LENGTH);
         
         System.out.println("Player is at block: (" + blockX + ", " + blockY + ", " + blockZ + ")");
         
@@ -209,36 +209,6 @@ public class Chunk {
         }
         
         return false;
-        /*
-        // Check for collision with each block in the chunk
-        for (int x = 0; x < CHUNK_SIZE; x++) {
-            for (int y = 0; y < CHUNK_SIZE; y++) {
-                for (int z = 0; z < CHUNK_SIZE; z++) {
-                    // If the block is not null, check for collision
-                    if (blocks[x][y][z] != null) {
-                        float blockMinX = startX + x * CUBE_LENGTH;
-                        float blockMaxX = startX + (x + 1) * CUBE_LENGTH;
-                        float blockMinY = y * CUBE_LENGTH;
-                        float blockMaxY = (y + 1) * CUBE_LENGTH;
-                        float blockMinZ = startZ + z * CUBE_LENGTH;
-                        float blockMaxZ = startZ + (z + 1) * CUBE_LENGTH;
-
-                        // Check if the player's bounding box intersects with the block's bounding box
-                        if (playerMaxX > blockMinX && playerMinX < blockMaxX &&
-                            playerMaxY > blockMinY && playerMinY < blockMaxY &&
-                            playerMaxZ > blockMinZ && playerMinZ < blockMaxZ) {
-                            
-                            System.out.println("Collision!");
-                            // Collision detected
-                            return true;
-                        }
-                    }
-                }
-            }
-        } */
-        
-        // No collision
-//        return false;
     }
     
     // method: Constructor

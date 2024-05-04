@@ -65,11 +65,15 @@ public class FPCameraController {
         position.z += zOffset;                
     }
     
+    // method: getWalkForwardsPositionX
+    // purpose: Gets the X-position of the player if they move the specified distance forwards
     public float getWalkForwardsPositionX(float distance) {
         float xOffset = distance * (float)Math.sin(Math.toRadians(yaw));
         return position.x - xOffset;
     }
     
+    // method: getWalkForwardsPositionZ
+    // purpose: Gets the Z-position of the player if they move the specified distance forwards
     public float getWalkForwardsPositionZ(float distance) {
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw));
         return position.z + zOffset;
@@ -84,11 +88,15 @@ public class FPCameraController {
         position.z -= zOffset;
     }
     
+    // method: getWalkBackwardsPositionX
+    // purpose: Gets the X-position of the player if they move the specified distance backwards
     public float getWalkBackwardsPositionX(float distance) {
         float xOffset = distance * (float)Math.sin(Math.toRadians(yaw));
         return position.x + xOffset;
     }
     
+    // method: getWalkBackwardsPositionZ
+    // purpose: Gets the Z-position of the player if they move the specified distance backwards
     public float getWalkBackwardsPositionZ(float distance) {
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw));
         return position.z - zOffset;
@@ -103,6 +111,20 @@ public class FPCameraController {
         position.z += zOffset;                
     }
     
+    // method: getStrafeLeftPositionX
+    // purpose: Gets the X-position of the player if they move the specified distance left
+    public float getStrafeLeftPositionX(float distance) {
+        float xOffset = distance * (float)Math.sin(Math.toRadians(yaw - 90));
+        return position.x - xOffset;
+    }
+    
+    // method: getStrafeLeftPositionZ
+    // purpose: Gets the Z-position of the player if they move the specified distance left
+    public float getStrafeLeftPositionZ(float distance) {
+        float zOffset = distance * (float)Math.cos(Math.toRadians(yaw - 90));
+        return position.z + zOffset;
+    }
+    
     // method: strafeRight
     // purpose: Strafes the camera right relative to its current location
     public void strafeRight(float distance) {
@@ -110,6 +132,20 @@ public class FPCameraController {
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw + 90));
         position.x -= xOffset;
         position.z += zOffset;                
+    }
+    
+    // method: getStrafeLeftPositionX
+    // purpose: Gets the X-position of the player if they move the specified distance right
+    public float getStrafeRightPositionX(float distance) {
+        float xOffset = distance * (float)Math.sin(Math.toRadians(yaw + 90));
+        return position.x - xOffset;
+    }
+    
+    // method: getStrafeLeftPositionZ
+    // purpose: Gets the Z-position of the player if they move the specified distance right    
+    public float getStrafeRightPositionZ(float distance) {
+        float zOffset = distance * (float)Math.cos(Math.toRadians(yaw + 90));
+        return position.z + zOffset;
     }
     
     // method: moveUp
@@ -124,10 +160,14 @@ public class FPCameraController {
         position.y += distance;
     }
     
+    // method: getMoveUpPosition
+    // purpose: Gets the Y-position of the player if they move the specified up
     public float getMoveUpPosition(float distance) {
         return position.y - distance;
     }
     
+    // method: getMoveDownPosition
+    // purpose: Gets the Y-position of the player if they move the specified down
     public float getMoveDownPosition(float distance) {
         return position.y + distance;
     }
@@ -182,38 +222,46 @@ public class FPCameraController {
             // Need to check if moving in the given direction will result in a collision
             
             if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-                camera.walkForwards(movementSpeed);
+                float targetX = camera.getWalkForwardsPositionX(movementSpeed * 1.5f);
+                float targetZ = camera.getWalkForwardsPositionZ(movementSpeed * 1.5f);
+                
+                if (!myChunk.checkForCollision(-targetX, -camera.position.y, -targetZ)) camera.walkForwards(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-                camera.walkBackwards(movementSpeed);
+                float targetX = camera.getWalkBackwardsPositionX(movementSpeed * 1.5f);
+                float targetZ = camera.getWalkBackwardsPositionZ(movementSpeed * 1.5f);
+                
+                if (!myChunk.checkForCollision(-targetX, -camera.position.y, -targetZ)) camera.walkBackwards(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-                camera.strafeLeft(movementSpeed);
+                float targetX = camera.getStrafeLeftPositionX(movementSpeed * 1.5f);
+                float targetZ = camera.getStrafeLeftPositionZ(movementSpeed * 1.5f);
+                
+                if (!myChunk.checkForCollision(-targetX, -camera.position.y, -targetZ)) camera.strafeLeft(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-                camera.strafeRight(movementSpeed);
+                float targetX = camera.getStrafeRightPositionX(movementSpeed * 1.5f);
+                float targetZ = camera.getStrafeRightPositionZ(movementSpeed * 1.5f);
+                
+                if (!myChunk.checkForCollision(-targetX, -camera.position.y, -targetZ)) camera.strafeRight(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
                 float newY = camera.getMoveUpPosition(movementSpeed);
                 
-                boolean willHaveCollision = myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z);
-                
-                if (!willHaveCollision) camera.moveUp(movementSpeed);
+                if (!myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z)) camera.moveUp(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
                 float newY = camera.getMoveDownPosition(movementSpeed);
                 
-                boolean willHaveCollision = myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z);
-                
-                if (!willHaveCollision) camera.moveDown(movementSpeed);
+                if (!myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z)) camera.moveDown(movementSpeed);
             } 
-            if (Keyboard.isKeyDown(Keyboard.KEY_E)) {
-                System.out.println("x: " + -camera.position.x + ", y: " + -camera.position.y + ", z: " + -camera.position.z);
-                
-                boolean collision = myChunk.checkForCollision(-camera.position.x, -camera.position.y, -camera.position.z);
-                System.out.println("Collision: " + collision);
-            }
-                        
+//            if (Keyboard.isKeyDown(Keyboard.KEY_E)) {
+//                System.out.println("x: " + -camera.position.x + ", y: " + -camera.position.y + ", z: " + -camera.position.z);
+//                
+//                boolean collision = myChunk.checkForCollision(-camera.position.x, -camera.position.y, -camera.position.z);
+//                System.out.println("Collision: " + collision);
+//            }
+//                        
             glLoadIdentity();
             
             // Look through the camera before drawing anything
