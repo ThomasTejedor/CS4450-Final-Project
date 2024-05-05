@@ -171,7 +171,7 @@ public class FPCameraController {
     public float getMoveDownPosition(float distance) {
         return position.y + distance;
     }
-    
+        
     // method: lookThrough
     // purpose: Translates and rotates the matrix so that it looks through the camera
     public void lookThrough() {
@@ -200,6 +200,11 @@ public class FPCameraController {
         long time = 0;
         float mouseSensitivity = 0.09f;
         float movementSpeed = .35f;
+        float jumpStrength = movementSpeed * .75f;
+        
+        float currentGravity =  0f;
+        float gravityModifier = 0.01f;
+        float maxGravity = movementSpeed * 2;
         
         dt = 1 / 60f;
         
@@ -210,7 +215,6 @@ public class FPCameraController {
         while (!Display.isCloseRequested() && !Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
             time = Sys.getTime();
             dt = time - lastTime; // in ms
-//            System.out.println(time - lastTime);
             lastTime = time;
             
             
@@ -246,22 +250,36 @@ public class FPCameraController {
                 if (!myChunk.checkForCollision(-targetX, -camera.position.y, -targetZ)) camera.strafeRight(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-                float newY = camera.getMoveUpPosition(movementSpeed);
+                // Check if the player is grounded
+                float groundCheckY = camera.getMoveDownPosition(movementSpeed);
+                boolean isGrounded = myChunk.checkForCollision(-camera.position.x, -groundCheckY, -camera.position.z);
                 
-                if (!myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z)) camera.moveUp(movementSpeed);
+                if (isGrounded) {
+                      currentGravity = -jumpStrength;
+                    
+                }                
+//                    float newY = camera.getMoveUpPosition(movementSpeed);
+//                    if (!myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z)) camera.moveUp(movementSpeed);
             }
-            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+            // Removed as jumping replaced this
+            /*if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
                 float newY = camera.getMoveDownPosition(movementSpeed);
                 
                 if (!myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z)) camera.moveDown(movementSpeed);
-            } 
-//            if (Keyboard.isKeyDown(Keyboard.KEY_E)) {
-//                System.out.println("x: " + -camera.position.x + ", y: " + -camera.position.y + ", z: " + -camera.position.z);
-//                
-//                boolean collision = myChunk.checkForCollision(-camera.position.x, -camera.position.y, -camera.position.z);
-//                System.out.println("Collision: " + collision);
-//            }
-//                        
+            } */
+//             
+            // Gravity
+            currentGravity += gravityModifier;            
+            if (currentGravity > maxGravity) currentGravity = maxGravity;            
+            
+            float gravityY = camera.getMoveDownPosition(currentGravity);
+            
+            if (!myChunk.checkForCollision(-camera.position.x, -gravityY, -camera.position.z)) {
+                camera.moveDown(currentGravity);
+            } else {
+                currentGravity = 0f;                
+            }
+
             glLoadIdentity();
             
             // Look through the camera before drawing anything

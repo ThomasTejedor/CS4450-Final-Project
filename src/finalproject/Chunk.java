@@ -162,6 +162,8 @@ public class Chunk {
         return new float[] {1, 1, 1};
     }
     
+    // method: checkForCollision
+    // purpose: determines if the player collides with a block
     public boolean checkForCollision(float playerX, float playerY, float playerZ) {
         // Get the player's bounding box, assuming it is the same size as the cubes
         float playerMinX = playerX - 1;
@@ -181,28 +183,6 @@ public class Chunk {
         if (blockX >= 0 && blockY >= 0 && blockZ >= 0) {
             if (blocks[blockX][blockY][blockZ] != null) {
                 System.out.println("Collision!");
-                
-                float offset = CUBE_LENGTH / 2;
-                
-                float cubeMinX = startX + blockX * CUBE_LENGTH - offset;
-                float cubeMaxX = startX + blockX * CUBE_LENGTH + offset;
-                float cubeMinY = startY + blockY * CUBE_LENGTH - offset;
-                float cubeMaxY = startY + blockY * CUBE_LENGTH + offset;
-                float cubeMinZ = startZ + blockZ * CUBE_LENGTH - offset;
-                float cubeMaxZ = startZ + blockZ * CUBE_LENGTH + offset;
-                
-//                System.out.println("[cubeMinX: " + cubeMinX + ", cubeMaxX: " + cubeMaxX + "]");
-//                System.out.println("[cubeMinY: " + cubeMinY + ", cubeMaxY: " + cubeMaxY + "]");
-//                System.out.println("[cubeMinZ: " + cubeMinZ + ", cubeMaxZ: " + cubeMaxZ + "]");
-//                
-//                if (playerMinX < cubeMaxX) System.out.println("Collision minX");
-//                else if (playerMaxX > cubeMinX) System.out.println("Collision maxX");
-//                
-//                if (playerMinY < cubeMaxY) System.out.println("Collision minY");
-//                else if (playerMaxY > cubeMinY) System.out.println("Collision maxY");
-//                
-//                if (playerMinZ < cubeMaxZ) System.out.println("Collision minZ");
-//                else if (playerMaxZ > cubeMinZ) System.out.println("Collision maxZ");
                 
                 return true;
             }             
@@ -233,6 +213,8 @@ public class Chunk {
         rebuildMesh(startX, startY, startZ);
     }
     
+    // method: getBlockType
+    // purpose: gets the type of the block, based on its position and the height at that point
     private Block getBlockType(int x, int y, int z, int height) {
         // Only place grass, sand, or water at the topmost level
         // Only place dirt or stone below
