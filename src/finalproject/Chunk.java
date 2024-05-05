@@ -180,15 +180,15 @@ public class Chunk {
         
         System.out.println("Player is at block: (" + blockX + ", " + blockY + ", " + blockZ + ")");
         
-        if (blockX >= 0 && blockY >= 0 && blockZ >= 0) {
+        if (blockX >= 0 && blockY >= 0 && blockZ >= 0 && blockX < CHUNK_SIZE && blockY < CHUNK_SIZE && blockZ < CHUNK_SIZE) {
             if (blocks[blockX][blockY][blockZ] != null) {
                 System.out.println("Collision!");
                 
                 return true;
-            }             
+            } else return false;
         }
         
-        return false;
+        return true;
     }
     
     // method: Constructor
