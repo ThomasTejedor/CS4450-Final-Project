@@ -23,6 +23,8 @@ public class FPCameraController {
     // 3D vector to store the camera's position
     private Vector3<Float> position = null;
     private Vector3<Float> IPosition = null;
+    private Vector3<Float> sunPosition = null;
+    private float currSunDegrees = 0;
     
     // Rotation around the Y axis of the camera    
     private float yaw = 0.0f;
@@ -36,9 +38,11 @@ public class FPCameraController {
     public FPCameraController(float x, float y, float z) {
         position = new Vector3<>(x, y, z);
         IPosition = new Vector3<>(x, y, z);
+        sunPosition = new Vector3<>(0f,0f,50f);
         IPosition.x = 0f;
         IPosition.y = 15f;
         IPosition.z = 0f;              
+        
         
         myChunk = new Chunk((int)x, (int)y, (int)z);
     }
@@ -47,13 +51,23 @@ public class FPCameraController {
     // purpose: Increment the camera's current yaw rotation
     public void yaw(float amount) {
         // increment the yaw by the amount param
-        yaw += amount;
+            yaw += amount;
     }
     
     // method: pitch
     // purpose: Increment the camera's current pitch rotation
     public void pitch(float amount) {
-        pitch -= amount;
+            
+            float currPitch = pitch - amount;
+            
+            //Simulates head movement i.e. locks head from going past a certain distance
+            if(currPitch < -70){
+                currPitch = -70;
+            } else if(currPitch > 40){
+                currPitch = 40;
+            }
+            
+            pitch = currPitch;
     }
     
     // method: walkForwards
@@ -183,9 +197,24 @@ public class FPCameraController {
         // translate to the position vector's location
         glTranslatef(position.x, position.y, position.z);
         
+        //determines the speed of the sun
+        rotateLight(.01);
+    }
+    
+    public void rotateLight(double speed) {
+        
+        currSunDegrees += speed;
+        if(currSunDegrees > 360){
+            currSunDegrees = 0; 
+        }
+        float x = (float)Math.cos(currSunDegrees);
+        float y = (float)Math.sin(currSunDegrees);
+        
+        sunPosition.x = 50 - (x*100);
+        sunPosition.y = 50 - (y*100);
         FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
-        lightPosition.put(40.0f).put(
-                50.0f).put(40.0f).put(1.0f).flip();
+        lightPosition.put(sunPosition.x).put(
+                sunPosition.y).put(sunPosition.z).put(1.0f).flip();
         glLight(GL_LIGHT0,GL_POSITION,lightPosition);
     }
     
