@@ -164,21 +164,13 @@ public class Chunk {
     
     // method: checkForCollision
     // purpose: determines if the player collides with a block
-    public boolean checkForCollision(float playerX, float playerY, float playerZ) {
-        // Get the player's bounding box, assuming it is the same size as the cubes
-        float playerMinX = playerX - 1;
-        float playerMaxX = playerX + 1;
-        float playerMinY = playerY - 1;
-        float playerMaxY = playerY + 1;
-        float playerMinZ = playerZ - 1;
-        float playerMaxZ = playerZ + 1;               
-        
+    public boolean checkForCollision(float playerX, float playerY, float playerZ) {              
         // See if there is a block at the current position
         int blockX = (int)((playerX + 1 - startX) / CUBE_LENGTH);
         int blockY = (int)((playerY - startY) / CUBE_LENGTH);
         int blockZ = (int)((playerZ + 1 - startZ) / CUBE_LENGTH);
         
-        System.out.println("Player is at block: (" + blockX + ", " + blockY + ", " + blockZ + ")");
+//        System.out.println("Player is at block: (" + blockX + ", " + blockY + ", " + blockZ + ")");
         
         if (blockX >= 0 && blockY >= 0 && blockZ >= 0 && blockX < CHUNK_SIZE && blockY < CHUNK_SIZE && blockZ < CHUNK_SIZE) {
             if (blocks[blockX][blockY][blockZ] != null) {
@@ -193,13 +185,13 @@ public class Chunk {
     
     // method: Constructor
     // purpose: Creates a new Chunk at the given coordinates
-    public Chunk(int startX, int startY, int startZ) {
-       
+    public Chunk(int startX, int startY, int startZ) {       
         try{texture = TextureLoader.getTexture("PNG", 
                 ResourceLoader.getResourceAsStream("terrain.png"));
         } catch(Exception e) {
             System.out.println("Texture file not found");
         }
+        
         r = new Random();
         blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
         

@@ -38,7 +38,7 @@ public class FPCameraController {
     public FPCameraController(float x, float y, float z) {
         position = new Vector3<>(x, y, z);
         IPosition = new Vector3<>(x, y, z);
-        sunPosition = new Vector3<>(0f,0f,50f);
+        sunPosition = new Vector3<>(0f,0f,70f);
         IPosition.x = 0f;
         IPosition.y = 15f;
         IPosition.z = 0f;              
@@ -51,23 +51,22 @@ public class FPCameraController {
     // purpose: Increment the camera's current yaw rotation
     public void yaw(float amount) {
         // increment the yaw by the amount param
-            yaw += amount;
+        yaw += amount;
     }
     
     // method: pitch
     // purpose: Increment the camera's current pitch rotation
-    public void pitch(float amount) {
-            
-            float currPitch = pitch - amount;
-            
-            //Simulates head movement i.e. locks head from going past a certain distance
-            if(currPitch < -70){
-                currPitch = -70;
-            } else if(currPitch > 40){
-                currPitch = 40;
-            }
-            
-            pitch = currPitch;
+    public void pitch(float amount) {            
+        float currPitch = pitch - amount;
+
+        //Simulates head movement i.e. locks head from going past a certain distance
+        if(currPitch < -70){
+            currPitch = -70;
+        } else if(currPitch > 40){
+            currPitch = 40;
+        }
+
+        pitch = currPitch;
     }
     
     // method: walkForwards
@@ -195,23 +194,23 @@ public class FPCameraController {
         // rotate the yaw around the Y axis
         glRotatef(yaw, 0f, 1f, 0f);
         // translate to the position vector's location
-        glTranslatef(position.x, position.y, position.z);
-        
-        //determines the speed of the sun
-        rotateLight(.01);
+        glTranslatef(position.x, position.y, position.z);        
     }
-    
-    public void rotateLight(double speed) {
         
+    public void rotateLight(double speed) {     
         currSunDegrees += speed;
         if(currSunDegrees > 360){
             currSunDegrees = 0; 
         }
-        float x = (float)Math.cos(currSunDegrees);
-        float y = (float)Math.sin(currSunDegrees);
         
-        sunPosition.x = 50 - (x*100);
-        sunPosition.y = 50 - (y*100);
+        System.out.println(currSunDegrees);
+        
+        float x = (float)Math.cos(Math.toRadians(currSunDegrees));
+        float y = (float)Math.sin(Math.toRadians(currSunDegrees));
+        
+//        sunPosition.x = 50 - (x*100); // X goes left-right
+//        sunPosition.y = 50 - (x*100);
+        sunPosition.z = 50 - (y*100); // Z goes forwards backwards 
         FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
         lightPosition.put(sunPosition.x).put(
                 sunPosition.y).put(sunPosition.z).put(1.0f).flip();
@@ -244,16 +243,13 @@ public class FPCameraController {
         while (!Display.isCloseRequested() && !Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
             time = Sys.getTime();
             dt = time - lastTime; // in ms
-            lastTime = time;
-            
+            lastTime = time;            
             
             dx = Mouse.getDX();
             dy = Mouse.getDY();
             camera.yaw(dx * mouseSensitivity);
             camera.pitch(dy * mouseSensitivity);
-            
-            // Need to check if moving in the given direction will result in a collision
-            
+                        
             if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
                 float targetX = camera.getWalkForwardsPositionX(movementSpeed * 1.5f);
                 float targetZ = camera.getWalkForwardsPositionZ(movementSpeed * 1.5f);
@@ -313,6 +309,10 @@ public class FPCameraController {
             
             // Look through the camera before drawing anything
             camera.lookThrough();           
+            
+            // Light
+            //determines the speed of the sun
+            camera.rotateLight(0.5);
             
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
