@@ -54,7 +54,7 @@ public class Chunk {
         
         //Creates the noise to map terrain
         int minHeight = CHUNK_SIZE;
-        SimplexNoise noise = new SimplexNoise(minHeight,.1,i);
+        SimplexNoise noise = new SimplexNoise(minHeight,.15,i);
         
         vboColorHandle = glGenBuffers();
         vboVertexHandle = glGenBuffers();
@@ -67,7 +67,9 @@ public class Chunk {
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int z = 0; z < CHUNK_SIZE; z++) {
                 int height = ((int)20 + (int)(15*noise.getNoise((int)x,(int)startY,(int)z)*CUBE_LENGTH));
-                for (int y = 0; y < height && y < CHUNK_SIZE; y++) {
+                for (int y = 0; (height < 20 && y >= height && y < 18) || (y < height && y < CHUNK_SIZE); y++) {
+                    
+                    System.out.println("Height: " + height + " Y: " + y); 
                     blocks[x][y][z] = getBlockType(x, y, z, height);
                     
                     vertexPositionData.put(createCube(
@@ -166,14 +168,14 @@ public class Chunk {
     // purpose: determines if the player collides with a block
     public boolean checkForCollision(float playerX, float playerY, float playerZ) {              
         // See if there is a block at the current position
-        int blockX = (int)((playerX + 1f - startX) / CUBE_LENGTH);
-        int blockY = (int)((playerY - startY) / CUBE_LENGTH);
-        int blockZ = (int)((playerZ + 2f - startZ) / CUBE_LENGTH);
+        int blockX = (int)((playerX + 2 - startX) / CUBE_LENGTH);
+        int blockY = (int)((playerY - 2 - startY) / CUBE_LENGTH);
+        int blockZ = (int)((playerZ + 2 - startZ) / CUBE_LENGTH);
         
 //        System.out.println("Player is at block: (" + blockX + ", " + blockY + ", " + blockZ + ")");
         
         if (blockX >= 0 && blockY >= 0 && blockZ >= 0 && blockX < CHUNK_SIZE && blockY < CHUNK_SIZE && blockZ < CHUNK_SIZE) {
-            if (blocks[blockX][blockY][blockZ] != null) {
+            if (blocks[blockX][blockY][blockZ] != null && blocks[blockX][blockY][blockZ].getID() != 2 ) {
                 System.out.println("Collision!");
                 
                 return true;
@@ -213,22 +215,26 @@ public class Chunk {
         // Only place bedrock at the very bottom        
         if (y == 0) { // Block is on the bottom-most level
             return new Block(Block.BlockType.Block_Bedrock);
-        } else if (y == height - 1) { // block is on the top-most level
-            float rand = r.nextFloat();
-            if (rand > 2f / 3) {
-                return new Block(Block.BlockType.Block_Grass);
-            } else if (rand > 1f / 3) {
-                return new Block(Block.BlockType.Block_Sand);
-            } else {
-                return new Block(Block.BlockType.Block_Water);
-            }
-        } else { // Block is between top-most and bottom-most levels
+        }
+        else if(y < 15){
             float rand = r.nextFloat();
             if (rand > 0.5f) {
                 return new Block(Block.BlockType.Block_Dirt);
             } else {
                 return new Block(Block.BlockType.Block_Stone);
             }
+        }
+        else if(height < 19 && y == height - 1) {
+            return new Block(Block.BlockType.Block_Sand);
+        }
+        else if (height < 19 && y >= height){
+            return new Block(Block.BlockType.Block_Water);
+        }
+        else if (y == height - 1) { // block is on the top-most level
+            return new Block(Block.BlockType.Block_Grass);
+        }
+        else {
+            return new Block(Block.BlockType.Block_Dirt);
         }
     }
     

@@ -13,6 +13,7 @@ import org.lwjgl.Sys;
 import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
 
+
 /**
  *
  * @author PixelPioneers
@@ -24,7 +25,12 @@ public class FPCameraController {
     private Vector3<Float> position = null;
     private Vector3<Float> IPosition = null;
     private Vector3<Float> sunPosition = null;
-    private float currSunDegrees = 0;
+    
+    //Amount of degreees the sun follows
+    private float currSunDegrees = 0.0f;
+    
+    //Current brightness of the sun
+    private float brightness = 1.0f;
     
     // Rotation around the Y axis of the camera    
     private float yaw = 0.0f;
@@ -197,32 +203,60 @@ public class FPCameraController {
         glTranslatef(position.x, position.y, position.z);        
     }
         
-    public void rotateLight(double speed) {     
-        currSunDegrees += speed;
+    public void rotateLight(float speed) {     
+        
+        brightness += speed; 
+        float newBrightness = (float)Math.cos(Math.toRadians(brightness));
+        
+        float rBrightness;
+        float gBrightness;
+        float bBrightness;
+        if(newBrightness > .50){
+            rBrightness = newBrightness;
+            gBrightness = newBrightness;
+            bBrightness = newBrightness;
+        } else if ( newBrightness > .50) {
+            rBrightness = .5f;
+            gBrightness = newBrightness;
+            bBrightness = newBrightness;
+        }
+        else if (newBrightness > .15f){
+            rBrightness = newBrightness;
+            gBrightness = newBrightness;
+            bBrightness = .15f;
+        }
+        else {
+            rBrightness = .10f;
+            gBrightness = .10f;
+            bBrightness = .15f;
+        }
+            
+        
+        /*currSunDegrees += speed;
         if(currSunDegrees > 360){
             currSunDegrees = 0; 
-        }
+        } 
         
         System.out.println(currSunDegrees);
         
         float x = (float)Math.cos(Math.toRadians(currSunDegrees));
         float y = (float)Math.sin(Math.toRadians(currSunDegrees));
+        */
         
 //        sunPosition.x = 50 - (x*100); // X goes left-right
 //        sunPosition.y = 50 - (x*100);
-//        sunPosition.z = 50 - (y*100); // Z goes forwards backwards 
-        
-        sunPosition.x = 0f;
-        sunPosition.y = 0f;
-        sunPosition.z = 100 * y;
-
+        //sunPosition.z = 50 - (y*100); // Z goes forwards backwards 
         FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
         lightPosition.put(sunPosition.x).put(
-                sunPosition.y).put(sunPosition.z).put(1f).flip();
-//        lightPosition.put(0f).put(
-//                10f).put(sunPosition.z).put(y).flip();
+                sunPosition.y).put(sunPosition.z).put(1.0f).flip();
+        
+        FloatBuffer whiteLight = BufferUtils.createFloatBuffer(4);
+        whiteLight.put(rBrightness).put(gBrightness).put(bBrightness).put(1).flip();
         
         glLight(GL_LIGHT0,GL_POSITION,lightPosition);
+        glLight(GL_LIGHT0,GL_SPECULAR, whiteLight);
+        glLight(GL_LIGHT0,GL_DIFFUSE, whiteLight);
+        glLight(GL_LIGHT0,GL_AMBIENT, whiteLight);
     }
     
     // method: gameLoop
@@ -320,7 +354,7 @@ public class FPCameraController {
             
             // Light
             //determines the speed of the sun
-            camera.rotateLight(0.5);
+            camera.rotateLight(0.1f);
             
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
