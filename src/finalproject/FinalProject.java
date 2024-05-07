@@ -36,7 +36,7 @@ public class FinalProject {
         try {
             createWindow();
             initGL();
-            fp = new FPCameraController(-20f, -45f, -20f);
+            fp = new FPCameraController(-20f, -50f, -20f);
             fp.gameLoop();
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,6 +94,10 @@ public class FinalProject {
         
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//        glEnable(GL_ALPHA_TEST);
+//        glAlphaFunc(GL_GREATER, 0.1f);
         
         glMatrixMode(GL_MODELVIEW);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);

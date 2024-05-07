@@ -69,7 +69,7 @@ public class Chunk {
                 int height = ((int)20 + (int)(15*noise.getNoise((int)x,(int)startY,(int)z)*CUBE_LENGTH));
                 for (int y = 0; (height < 20 && y >= height && y < 18) || (y < height && y < CHUNK_SIZE); y++) {
                     
-                    System.out.println("Height: " + height + " Y: " + y); 
+//                    System.out.println("Height: " + height + " Y: " + y); 
                     blocks[x][y][z] = getBlockType(x, y, z, height);
                     
                     vertexPositionData.put(createCube(
@@ -86,6 +86,11 @@ public class Chunk {
                 // blocks above the height should be null
             }
         }
+        
+        // Skybox
+        vertexPositionData.put(createCube(0, 0, 0, 50));
+        vertexColorData.put(createCubeVertexCol(new float[] {1f, 1f, 1f}));
+        VertexTextureData.put(createTexCube(0, 0, new Block(Block.BlockType.Block_Skybox)));
         
         vertexColorData.flip();
         vertexPositionData.flip();
@@ -119,64 +124,72 @@ public class Chunk {
         return cubeColors;
     }
     
-    // method: createCube
-    // purpose: Creates a new cube as an array of floats, ready to be added to a VBO
-    public static float[] createCube(float x, float y, float z) {
-        int offset = CUBE_LENGTH / 2;
+    public static float[] createCube(float x, float y, float z, int offset) {
         return new float[] {
             // TOP QUAD
             x + offset, y + offset, z,
             x - offset, y + offset, z,
-            x - offset, y + offset, z - CUBE_LENGTH,
-            x + offset, y + offset, z - CUBE_LENGTH,
+            x - offset, y + offset, z - offset * 2,
+            x + offset, y + offset, z - offset * 2,
             // BOTTOM QUAD
-            x + offset, y - offset, z - CUBE_LENGTH,
-            x - offset, y - offset, z - CUBE_LENGTH,
+            x + offset, y - offset, z - offset * 2,
+            x - offset, y - offset, z - offset * 2,
             x - offset, y - offset, z,
             x + offset, y - offset, z,
             // FRONT QUAD
-            x + offset, y + offset, z - CUBE_LENGTH,
-            x - offset, y + offset, z- CUBE_LENGTH,
-            x - offset, y - offset, z - CUBE_LENGTH,
-            x + offset, y - offset, z - CUBE_LENGTH,
+            x + offset, y + offset, z - offset * 2,
+            x - offset, y + offset, z- offset * 2,
+            x - offset, y - offset, z - offset * 2,
+            x + offset, y - offset, z - offset * 2,
             // BACK QUAD
             x + offset, y - offset, z,
             x - offset, y - offset, z,
             x - offset, y + offset, z,
             x + offset, y + offset, z,
             // LEFT QUAD
-            x - offset, y + offset, z - CUBE_LENGTH,
+            x - offset, y + offset, z - offset * 2,
             x - offset, y + offset, z,
             x - offset, y - offset, z,
-            x - offset, y - offset, z - CUBE_LENGTH,
+            x - offset, y - offset, z - offset * 2,
             // RIGHT QUAD
             x + offset, y + offset, z,
-            x + offset, y + offset, z - CUBE_LENGTH,
-            x + offset, y - offset, z - CUBE_LENGTH,
+            x + offset, y + offset, z - offset * 2,
+            x + offset, y - offset, z - offset * 2,
             x + offset, y - offset, z
         };
     }
     
+    // method: createCube
+    // purpose: Creates a new cube as an array of floats, ready to be added to a VBO
+    public static float[] createCube(float x, float y, float z) {
+        int offset = CUBE_LENGTH / 2;
+        return createCube(x, y, z, offset);
+    }
+    
     // method: getCubeColor
     // purpose: Gets the color of a Block based on its type
-    private float[] getCubeColor(Block block) {
-        
-        return new float[] {1, 1, 1};
+    private float[] getCubeColor(Block block) {        
+        if (block.getID() == Block.BlockType.Block_Water.getID()) {
+        System.out.println("Water");
+            return new float[] {1, 1, 1};
+        } else {
+            return new float[] {1, 1, 1};            
+        }
     }
     
     // method: checkForCollision
     // purpose: determines if the player collides with a block
     public boolean checkForCollision(float playerX, float playerY, float playerZ) {              
         // See if there is a block at the current position
-        int blockX = (int)((playerX + 2 - startX) / CUBE_LENGTH);
+        int blockX = (int)((playerX + 1 - startX) / CUBE_LENGTH);
         int blockY = (int)((playerY - 2 - startY) / CUBE_LENGTH);
         int blockZ = (int)((playerZ + 2 - startZ) / CUBE_LENGTH);
         
 //        System.out.println("Player is at block: (" + blockX + ", " + blockY + ", " + blockZ + ")");
         
         if (blockX >= 0 && blockY >= 0 && blockZ >= 0 && blockX < CHUNK_SIZE && blockY < CHUNK_SIZE && blockZ < CHUNK_SIZE) {
-            if (blocks[blockX][blockY][blockZ] != null && blocks[blockX][blockY][blockZ].getID() != 2 ) {
-                System.out.println("Collision!");
+            if (blocks[blockX][blockY][blockZ] != null && blocks[blockX][blockY][blockZ].getID() != Block.BlockType.Block_Water.getID() ) {
+//                System.out.println("Collision!");
                 
                 return true;
             } else return false;
@@ -344,20 +357,34 @@ public class Chunk {
                 backQuadCoord.x = 2;
                 backQuadCoord.y = 2;
                 break;
+            case 6:
+                topQuadCoord.x = 15;
+                topQuadCoord.y = 1;
+                bottomQuadCoord.x = 15; 
+                bottomQuadCoord.y = 1;
+                rightQuadCoord.x = 15;
+                rightQuadCoord.y = 1;
+                leftQuadCoord.x = 15;
+                leftQuadCoord.y = 1;
+                frontQuadCoord.x = 15
+;                frontQuadCoord.y = 1;
+                backQuadCoord.x = 15;
+                backQuadCoord.y = 1;
+                break;
             default:
             {
                 topQuadCoord.x = 7;
-                topQuadCoord.y = 14;
+                topQuadCoord.y = 1;
                 bottomQuadCoord.x = 7; 
-                bottomQuadCoord.y = 14;
+                bottomQuadCoord.y = 1;
                 rightQuadCoord.x = 7;
-                rightQuadCoord.y = 14;
+                rightQuadCoord.y = 1;
                 leftQuadCoord.x = 7;
-                leftQuadCoord.y = 14;
+                leftQuadCoord.y = 1;
                 frontQuadCoord.x = 7;
-                frontQuadCoord.y = 14;
+                frontQuadCoord.y = 1;
                 backQuadCoord.x = 7;
-                backQuadCoord.y = 14;
+                backQuadCoord.y = 1;
                                           
             }
         }  
