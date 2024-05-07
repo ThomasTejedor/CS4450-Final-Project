@@ -88,7 +88,7 @@ public class Chunk {
         }
         
         // Skybox
-        vertexPositionData.put(createCube(0, 0, 0, 50));
+        vertexPositionData.put(createCube(CHUNK_SIZE * CUBE_LENGTH / 2, 0, CHUNK_SIZE * CUBE_LENGTH, 50));
         vertexColorData.put(createCubeVertexCol(new float[] {1f, 1f, 1f}));
         VertexTextureData.put(createTexCube(0, 0, new Block(Block.BlockType.Block_Skybox)));
         
@@ -357,6 +357,7 @@ public class Chunk {
                 backQuadCoord.x = 2;
                 backQuadCoord.y = 2;
                 break;
+            // skybox
             case 6:
                 topQuadCoord.x = 15;
                 topQuadCoord.y = 1;
@@ -366,8 +367,8 @@ public class Chunk {
                 rightQuadCoord.y = 1;
                 leftQuadCoord.x = 15;
                 leftQuadCoord.y = 1;
-                frontQuadCoord.x = 15
-;                frontQuadCoord.y = 1;
+                frontQuadCoord.x = 15;
+                frontQuadCoord.y = 1;
                 backQuadCoord.x = 15;
                 backQuadCoord.y = 1;
                 break;
