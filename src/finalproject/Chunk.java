@@ -166,9 +166,9 @@ public class Chunk {
     // purpose: determines if the player collides with a block
     public boolean checkForCollision(float playerX, float playerY, float playerZ) {              
         // See if there is a block at the current position
-        int blockX = (int)((playerX + 1 - startX) / CUBE_LENGTH);
+        int blockX = (int)((playerX + 1f - startX) / CUBE_LENGTH);
         int blockY = (int)((playerY - startY) / CUBE_LENGTH);
-        int blockZ = (int)((playerZ + 1 - startZ) / CUBE_LENGTH);
+        int blockZ = (int)((playerZ + 2f - startZ) / CUBE_LENGTH);
         
 //        System.out.println("Player is at block: (" + blockX + ", " + blockY + ", " + blockZ + ")");
         

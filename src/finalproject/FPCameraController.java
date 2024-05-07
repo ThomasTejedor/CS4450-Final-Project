@@ -210,10 +210,18 @@ public class FPCameraController {
         
 //        sunPosition.x = 50 - (x*100); // X goes left-right
 //        sunPosition.y = 50 - (x*100);
-        sunPosition.z = 50 - (y*100); // Z goes forwards backwards 
+//        sunPosition.z = 50 - (y*100); // Z goes forwards backwards 
+        
+        sunPosition.x = 0f;
+        sunPosition.y = 0f;
+        sunPosition.z = 100 * y;
+
         FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
         lightPosition.put(sunPosition.x).put(
-                sunPosition.y).put(sunPosition.z).put(1.0f).flip();
+                sunPosition.y).put(sunPosition.z).put(1f).flip();
+//        lightPosition.put(0f).put(
+//                10f).put(sunPosition.z).put(y).flip();
+        
         glLight(GL_LIGHT0,GL_POSITION,lightPosition);
     }
     
