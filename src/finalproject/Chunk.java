@@ -88,7 +88,7 @@ public class Chunk {
         }
         
         // Skybox
-        vertexPositionData.put(createCube(CHUNK_SIZE * CUBE_LENGTH / 2, 0, CHUNK_SIZE * CUBE_LENGTH, 50));
+        vertexPositionData.put(createCube(CHUNK_SIZE * CUBE_LENGTH / 4, 0, CHUNK_SIZE * CUBE_LENGTH, 50));
         vertexColorData.put(createCubeVertexCol(new float[] {1f, 1f, 1f}));
         VertexTextureData.put(createTexCube(0, 0, new Block(Block.BlockType.Block_Skybox)));
         
