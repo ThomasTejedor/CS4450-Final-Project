@@ -54,7 +54,7 @@ public class Chunk {
         
         //Creates the noise to map terrain
         int minHeight = CHUNK_SIZE;
-        SimplexNoise noise = new SimplexNoise(minHeight,.1,i);
+        SimplexNoise noise = new SimplexNoise(minHeight,.15,i);
         
         vboColorHandle = glGenBuffers();
         vboVertexHandle = glGenBuffers();
@@ -67,12 +67,14 @@ public class Chunk {
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int z = 0; z < CHUNK_SIZE; z++) {
                 int height = ((int)20 + (int)(15*noise.getNoise((int)x,(int)startY,(int)z)*CUBE_LENGTH));
-                for (int y = 0; y < height && y < CHUNK_SIZE; y++) {
+                for (int y = 0; (height < 20 && y >= height && y < 18) || (y < height && y < CHUNK_SIZE); y++) {
+                    
+//                    System.out.println("Height: " + height + " Y: " + y); 
                     blocks[x][y][z] = getBlockType(x, y, z, height);
                     
                     vertexPositionData.put(createCube(
                         (float)(startX + x * CUBE_LENGTH), 
-                        (float)(y * CUBE_LENGTH + (int)(CHUNK_SIZE * .8)), 
+                        (float)(startY + y * CUBE_LENGTH/* + (int)(CHUNK_SIZE * .8)*/), 
                         (float)(startZ + z * CUBE_LENGTH)));
                     vertexColorData.put(createCubeVertexCol(
                         getCubeColor(blocks[x][y][z])));
@@ -81,8 +83,14 @@ public class Chunk {
                             (float)0,
                             blocks[(int)(x)][(int)(y)][(int)(z)]));
                 }
+                // blocks above the height should be null
             }
         }
+        
+        // Skybox
+        vertexPositionData.put(createCube(CHUNK_SIZE * CUBE_LENGTH / 4, 0, CHUNK_SIZE * CUBE_LENGTH, 50));
+        vertexColorData.put(createCubeVertexCol(new float[] {1f, 1f, 1f}));
+        VertexTextureData.put(createTexCube(0, 0, new Block(Block.BlockType.Block_Skybox)));
         
         vertexColorData.flip();
         vertexPositionData.flip();
@@ -116,60 +124,89 @@ public class Chunk {
         return cubeColors;
     }
     
-    // method: createCube
-    // purpose: Creates a new cube as an array of floats, ready to be added to a VBO
-    public static float[] createCube(float x, float y, float z) {
-        int offset = CUBE_LENGTH / 2;
+    public static float[] createCube(float x, float y, float z, int offset) {
         return new float[] {
             // TOP QUAD
             x + offset, y + offset, z,
             x - offset, y + offset, z,
-            x - offset, y + offset, z - CUBE_LENGTH,
-            x + offset, y + offset, z - CUBE_LENGTH,
+            x - offset, y + offset, z - offset * 2,
+            x + offset, y + offset, z - offset * 2,
             // BOTTOM QUAD
-            x + offset, y - offset, z - CUBE_LENGTH,
-            x - offset, y - offset, z - CUBE_LENGTH,
+            x + offset, y - offset, z - offset * 2,
+            x - offset, y - offset, z - offset * 2,
             x - offset, y - offset, z,
             x + offset, y - offset, z,
             // FRONT QUAD
-            x + offset, y + offset, z - CUBE_LENGTH,
-            x - offset, y + offset, z- CUBE_LENGTH,
-            x - offset, y - offset, z - CUBE_LENGTH,
-            x + offset, y - offset, z - CUBE_LENGTH,
+            x + offset, y + offset, z - offset * 2,
+            x - offset, y + offset, z- offset * 2,
+            x - offset, y - offset, z - offset * 2,
+            x + offset, y - offset, z - offset * 2,
             // BACK QUAD
             x + offset, y - offset, z,
             x - offset, y - offset, z,
             x - offset, y + offset, z,
             x + offset, y + offset, z,
             // LEFT QUAD
-            x - offset, y + offset, z - CUBE_LENGTH,
+            x - offset, y + offset, z - offset * 2,
             x - offset, y + offset, z,
             x - offset, y - offset, z,
-            x - offset, y - offset, z - CUBE_LENGTH,
+            x - offset, y - offset, z - offset * 2,
             // RIGHT QUAD
             x + offset, y + offset, z,
-            x + offset, y + offset, z - CUBE_LENGTH,
-            x + offset, y - offset, z - CUBE_LENGTH,
+            x + offset, y + offset, z - offset * 2,
+            x + offset, y - offset, z - offset * 2,
             x + offset, y - offset, z
         };
     }
     
+    // method: createCube
+    // purpose: Creates a new cube as an array of floats, ready to be added to a VBO
+    public static float[] createCube(float x, float y, float z) {
+        int offset = CUBE_LENGTH / 2;
+        return createCube(x, y, z, offset);
+    }
+    
     // method: getCubeColor
     // purpose: Gets the color of a Block based on its type
-    private float[] getCubeColor(Block block) {
+    private float[] getCubeColor(Block block) {        
+        if (block.getID() == Block.BlockType.Block_Water.getID()) {
+        System.out.println("Water");
+            return new float[] {1, 1, 1};
+        } else {
+            return new float[] {1, 1, 1};            
+        }
+    }
+    
+    // method: checkForCollision
+    // purpose: determines if the player collides with a block
+    public boolean checkForCollision(float playerX, float playerY, float playerZ) {              
+        // See if there is a block at the current position
+        int blockX = (int)((playerX + 1 - startX) / CUBE_LENGTH);
+        int blockY = (int)((playerY - 2 - startY) / CUBE_LENGTH);
+        int blockZ = (int)((playerZ + 2 - startZ) / CUBE_LENGTH);
         
-        return new float[] {1, 1, 1};
+//        System.out.println("Player is at block: (" + blockX + ", " + blockY + ", " + blockZ + ")");
+        
+        if (blockX >= 0 && blockY >= 0 && blockZ >= 0 && blockX < CHUNK_SIZE && blockY < CHUNK_SIZE && blockZ < CHUNK_SIZE) {
+            if (blocks[blockX][blockY][blockZ] != null && blocks[blockX][blockY][blockZ].getID() != Block.BlockType.Block_Water.getID() ) {
+//                System.out.println("Collision!");
+                
+                return true;
+            } else return false;
+        }
+        
+        return true;
     }
     
     // method: Constructor
     // purpose: Creates a new Chunk at the given coordinates
-    public Chunk(int startX, int startY, int startZ) {
-       
+    public Chunk(int startX, int startY, int startZ) {       
         try{texture = TextureLoader.getTexture("PNG", 
                 ResourceLoader.getResourceAsStream("terrain.png"));
         } catch(Exception e) {
             System.out.println("Texture file not found");
         }
+        
         r = new Random();
         blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
         
@@ -183,28 +220,34 @@ public class Chunk {
         rebuildMesh(startX, startY, startZ);
     }
     
+    // method: getBlockType
+    // purpose: gets the type of the block, based on its position and the height at that point
     private Block getBlockType(int x, int y, int z, int height) {
         // Only place grass, sand, or water at the topmost level
         // Only place dirt or stone below
         // Only place bedrock at the very bottom        
         if (y == 0) { // Block is on the bottom-most level
             return new Block(Block.BlockType.Block_Bedrock);
-        } else if (y == height - 1) { // block is on the top-most level
-            float rand = r.nextFloat();
-            if (rand > 2f / 3) {
-                return new Block(Block.BlockType.Block_Grass);
-            } else if (rand > 1f / 3) {
-                return new Block(Block.BlockType.Block_Sand);
-            } else {
-                return new Block(Block.BlockType.Block_Water);
-            }
-        } else { // Block is between top-most and bottom-most levels
+        }
+        else if(y < 15){
             float rand = r.nextFloat();
             if (rand > 0.5f) {
                 return new Block(Block.BlockType.Block_Dirt);
             } else {
                 return new Block(Block.BlockType.Block_Stone);
             }
+        }
+        else if(height < 19 && y == height - 1) {
+            return new Block(Block.BlockType.Block_Sand);
+        }
+        else if (height < 19 && y >= height){
+            return new Block(Block.BlockType.Block_Water);
+        }
+        else if (y == height - 1) { // block is on the top-most level
+            return new Block(Block.BlockType.Block_Grass);
+        }
+        else {
+            return new Block(Block.BlockType.Block_Dirt);
         }
     }
     
@@ -314,20 +357,35 @@ public class Chunk {
                 backQuadCoord.x = 2;
                 backQuadCoord.y = 2;
                 break;
+            // skybox
+            case 6:
+                topQuadCoord.x = 15;
+                topQuadCoord.y = 1;
+                bottomQuadCoord.x = 15; 
+                bottomQuadCoord.y = 1;
+                rightQuadCoord.x = 15;
+                rightQuadCoord.y = 1;
+                leftQuadCoord.x = 15;
+                leftQuadCoord.y = 1;
+                frontQuadCoord.x = 15;
+                frontQuadCoord.y = 1;
+                backQuadCoord.x = 15;
+                backQuadCoord.y = 1;
+                break;
             default:
             {
                 topQuadCoord.x = 7;
-                topQuadCoord.y = 14;
+                topQuadCoord.y = 1;
                 bottomQuadCoord.x = 7; 
-                bottomQuadCoord.y = 14;
+                bottomQuadCoord.y = 1;
                 rightQuadCoord.x = 7;
-                rightQuadCoord.y = 14;
+                rightQuadCoord.y = 1;
                 leftQuadCoord.x = 7;
-                leftQuadCoord.y = 14;
+                leftQuadCoord.y = 1;
                 frontQuadCoord.x = 7;
-                frontQuadCoord.y = 14;
+                frontQuadCoord.y = 1;
                 backQuadCoord.x = 7;
-                backQuadCoord.y = 14;
+                backQuadCoord.y = 1;
                                           
             }
         }  
@@ -362,7 +420,7 @@ public class Chunk {
                 x + offset*(int)frontQuadCoord.x, y + offset*((int)frontQuadCoord.y-1), //top right coord
                 x + offset*(int)frontQuadCoord.x, y + offset*(int)frontQuadCoord.y, //bottom right coord
                 x + offset*((int)frontQuadCoord.x-1), y + offset*(int)frontQuadCoord.y, //bottom left coord
-        };
-       
+        };       
     }
+       
 }

@@ -19,7 +19,8 @@ public class Block {
         Block_Water(2),
         Block_Dirt(3),
         Block_Stone(4),
-        Block_Bedrock(5);
+        Block_Bedrock(5),
+        Block_Skybox(6);
         
         private int blockID ;
         

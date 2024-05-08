@@ -13,14 +13,24 @@ import org.lwjgl.Sys;
 import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
 
+
 /**
  *
  * @author PixelPioneers
  */
 public class FPCameraController {
+    private final float GRAVITY = 0.5f;
+
     // 3D vector to store the camera's position
     private Vector3<Float> position = null;
     private Vector3<Float> IPosition = null;
+    private Vector3<Float> sunPosition = null;
+    
+    //Amount of degreees the sun follows
+    private float currSunDegrees = 0.0f;
+    
+    //Current brightness of the sun
+    private float brightness = 1.0f;
     
     // Rotation around the Y axis of the camera    
     private float yaw = 0.0f;
@@ -34,9 +44,11 @@ public class FPCameraController {
     public FPCameraController(float x, float y, float z) {
         position = new Vector3<>(x, y, z);
         IPosition = new Vector3<>(x, y, z);
+        sunPosition = new Vector3<>(0f,0f,70f);
         IPosition.x = 0f;
         IPosition.y = 15f;
-        IPosition.z = 0f;
+        IPosition.z = 0f;              
+        
         
         myChunk = new Chunk((int)x, (int)y, (int)z);
     }
@@ -50,8 +62,17 @@ public class FPCameraController {
     
     // method: pitch
     // purpose: Increment the camera's current pitch rotation
-    public void pitch(float amount) {
-        pitch -= amount;
+    public void pitch(float amount) {            
+        float currPitch = pitch - amount;
+
+        //Simulates head movement i.e. locks head from going past a certain distance
+        if(currPitch < -70){
+            currPitch = -70;
+        } else if(currPitch > 40){
+            currPitch = 40;
+        }
+
+        pitch = currPitch;
     }
     
     // method: walkForwards
@@ -60,9 +81,21 @@ public class FPCameraController {
         float xOffset = distance * (float)Math.sin(Math.toRadians(yaw));
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw));
         position.x -= xOffset;
-        position.z += zOffset;
-        
-        
+        position.z += zOffset;                
+    }
+    
+    // method: getWalkForwardsPositionX
+    // purpose: Gets the X-position of the player if they move the specified distance forwards
+    public float getWalkForwardsPositionX(float distance) {
+        float xOffset = distance * (float)Math.sin(Math.toRadians(yaw));
+        return position.x - xOffset;
+    }
+    
+    // method: getWalkForwardsPositionZ
+    // purpose: Gets the Z-position of the player if they move the specified distance forwards
+    public float getWalkForwardsPositionZ(float distance) {
+        float zOffset = distance * (float)Math.cos(Math.toRadians(yaw));
+        return position.z + zOffset;
     }
     
     // method: walkBackwards
@@ -74,16 +107,41 @@ public class FPCameraController {
         position.z -= zOffset;
     }
     
+    // method: getWalkBackwardsPositionX
+    // purpose: Gets the X-position of the player if they move the specified distance backwards
+    public float getWalkBackwardsPositionX(float distance) {
+        float xOffset = distance * (float)Math.sin(Math.toRadians(yaw));
+        return position.x + xOffset;
+    }
+    
+    // method: getWalkBackwardsPositionZ
+    // purpose: Gets the Z-position of the player if they move the specified distance backwards
+    public float getWalkBackwardsPositionZ(float distance) {
+        float zOffset = distance * (float)Math.cos(Math.toRadians(yaw));
+        return position.z - zOffset;
+    }
+    
     // method: strafeLeft
     // purpose: Strafes the camera left relative to its current yaw
     public void strafeLeft(float distance) {
         float xOffset = distance * (float)Math.sin(Math.toRadians(yaw - 90));
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw - 90));
         position.x -= xOffset;
-        position.z += zOffset;
-        
-        FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
-        
+        position.z += zOffset;                
+    }
+    
+    // method: getStrafeLeftPositionX
+    // purpose: Gets the X-position of the player if they move the specified distance left
+    public float getStrafeLeftPositionX(float distance) {
+        float xOffset = distance * (float)Math.sin(Math.toRadians(yaw - 90));
+        return position.x - xOffset;
+    }
+    
+    // method: getStrafeLeftPositionZ
+    // purpose: Gets the Z-position of the player if they move the specified distance left
+    public float getStrafeLeftPositionZ(float distance) {
+        float zOffset = distance * (float)Math.cos(Math.toRadians(yaw - 90));
+        return position.z + zOffset;
     }
     
     // method: strafeRight
@@ -92,10 +150,21 @@ public class FPCameraController {
         float xOffset = distance * (float)Math.sin(Math.toRadians(yaw + 90));
         float zOffset = distance * (float)Math.cos(Math.toRadians(yaw + 90));
         position.x -= xOffset;
-        position.z += zOffset;
-        
-        FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
-        
+        position.z += zOffset;                
+    }
+    
+    // method: getStrafeLeftPositionX
+    // purpose: Gets the X-position of the player if they move the specified distance right
+    public float getStrafeRightPositionX(float distance) {
+        float xOffset = distance * (float)Math.sin(Math.toRadians(yaw + 90));
+        return position.x - xOffset;
+    }
+    
+    // method: getStrafeLeftPositionZ
+    // purpose: Gets the Z-position of the player if they move the specified distance right    
+    public float getStrafeRightPositionZ(float distance) {
+        float zOffset = distance * (float)Math.cos(Math.toRadians(yaw + 90));
+        return position.z + zOffset;
     }
     
     // method: moveUp
@@ -110,6 +179,18 @@ public class FPCameraController {
         position.y += distance;
     }
     
+    // method: getMoveUpPosition
+    // purpose: Gets the Y-position of the player if they move the specified up
+    public float getMoveUpPosition(float distance) {
+        return position.y - distance;
+    }
+    
+    // method: getMoveDownPosition
+    // purpose: Gets the Y-position of the player if they move the specified down
+    public float getMoveDownPosition(float distance) {
+        return position.y + distance;
+    }
+        
     // method: lookThrough
     // purpose: Translates and rotates the matrix so that it looks through the camera
     public void lookThrough() {
@@ -119,12 +200,63 @@ public class FPCameraController {
         // rotate the yaw around the Y axis
         glRotatef(yaw, 0f, 1f, 0f);
         // translate to the position vector's location
-        glTranslatef(position.x, position.y, position.z);
+        glTranslatef(position.x, position.y, position.z);        
+    }
         
+    public void rotateLight(float speed) {     
+        
+        brightness += speed; 
+        float newBrightness = (float)Math.cos(Math.toRadians(brightness));
+        
+        float rBrightness;
+        float gBrightness;
+        float bBrightness;
+        if(newBrightness > .50){
+            rBrightness = newBrightness;
+            gBrightness = newBrightness;
+            bBrightness = newBrightness;
+        } else if ( newBrightness > .50) {
+            rBrightness = .5f;
+            gBrightness = newBrightness;
+            bBrightness = newBrightness;
+        }
+        else if (newBrightness > .15f){
+            rBrightness = newBrightness;
+            gBrightness = newBrightness;
+            bBrightness = .15f;
+        }
+        else {
+            rBrightness = .10f;
+            gBrightness = .10f;
+            bBrightness = .15f;
+        }
+            
+        
+        /*currSunDegrees += speed;
+        if(currSunDegrees > 360){
+            currSunDegrees = 0; 
+        } 
+        
+        System.out.println(currSunDegrees);
+        
+        float x = (float)Math.cos(Math.toRadians(currSunDegrees));
+        float y = (float)Math.sin(Math.toRadians(currSunDegrees));
+        */
+        
+//        sunPosition.x = 50 - (x*100); // X goes left-right
+//        sunPosition.y = 50 - (x*100);
+        //sunPosition.z = 50 - (y*100); // Z goes forwards backwards 
         FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
-        lightPosition.put(40.0f).put(
-                50.0f).put(40.0f).put(1.0f).flip();
+        lightPosition.put(sunPosition.x).put(
+                sunPosition.y).put(sunPosition.z).put(1.0f).flip();
+        
+        FloatBuffer whiteLight = BufferUtils.createFloatBuffer(4);
+        whiteLight.put(rBrightness).put(gBrightness).put(bBrightness).put(1).flip();
+        
         glLight(GL_LIGHT0,GL_POSITION,lightPosition);
+        glLight(GL_LIGHT0,GL_SPECULAR, whiteLight);
+        glLight(GL_LIGHT0,GL_DIFFUSE, whiteLight);
+        glLight(GL_LIGHT0,GL_AMBIENT, whiteLight);
     }
     
     // method: gameLoop
@@ -138,6 +270,13 @@ public class FPCameraController {
         long time = 0;
         float mouseSensitivity = 0.09f;
         float movementSpeed = .35f;
+        float jumpStrength = movementSpeed * .75f;
+        
+        float currentGravity =  0f;
+        float gravityModifier = 0.01f;
+        float maxGravity = movementSpeed * 2;
+        
+        dt = 1 / 60f;
         
         // hide the mouse
         Mouse.setGrabbed(true);
@@ -145,36 +284,78 @@ public class FPCameraController {
         // keep looping until the display window is closed or the ESC key is down
         while (!Display.isCloseRequested() && !Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
             time = Sys.getTime();
-            lastTime = time;
+            dt = time - lastTime; // in ms
+            lastTime = time;            
             
             dx = Mouse.getDX();
             dy = Mouse.getDY();
             camera.yaw(dx * mouseSensitivity);
             camera.pitch(dy * mouseSensitivity);
-            
+                        
             if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-                camera.walkForwards(movementSpeed);
+                float targetX = camera.getWalkForwardsPositionX(movementSpeed * 1.5f);
+                float targetZ = camera.getWalkForwardsPositionZ(movementSpeed * 1.5f);
+                
+                if (!myChunk.checkForCollision(-targetX, -camera.position.y, -targetZ)) camera.walkForwards(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-                camera.walkBackwards(movementSpeed);
+                float targetX = camera.getWalkBackwardsPositionX(movementSpeed * 1.5f);
+                float targetZ = camera.getWalkBackwardsPositionZ(movementSpeed * 1.5f);
+                
+                if (!myChunk.checkForCollision(-targetX, -camera.position.y, -targetZ)) camera.walkBackwards(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-                camera.strafeLeft(movementSpeed);
+                float targetX = camera.getStrafeLeftPositionX(movementSpeed * 1.5f);
+                float targetZ = camera.getStrafeLeftPositionZ(movementSpeed * 1.5f);
+                
+                if (!myChunk.checkForCollision(-targetX, -camera.position.y, -targetZ)) camera.strafeLeft(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-                camera.strafeRight(movementSpeed);
+                float targetX = camera.getStrafeRightPositionX(movementSpeed * 1.5f);
+                float targetZ = camera.getStrafeRightPositionZ(movementSpeed * 1.5f);
+                
+                if (!myChunk.checkForCollision(-targetX, -camera.position.y, -targetZ)) camera.strafeRight(movementSpeed);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-                camera.moveUp(movementSpeed);
+                // Check if the player is grounded
+                float groundCheckY = camera.getMoveDownPosition(movementSpeed);
+                boolean isGrounded = myChunk.checkForCollision(-camera.position.x, -groundCheckY, -camera.position.z);
+                
+                if (isGrounded) {
+                      currentGravity = -jumpStrength;
+                    
+                }                
+//                    float newY = camera.getMoveUpPosition(movementSpeed);
+//                    if (!myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z)) camera.moveUp(movementSpeed);
             }
-            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-                camera.moveDown(movementSpeed);
-            }
+            // Removed as jumping replaced this
+            /*if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+                float newY = camera.getMoveDownPosition(movementSpeed);
+                
+                if (!myChunk.checkForCollision(-camera.position.x, -newY, -camera.position.z)) camera.moveDown(movementSpeed);
+            } */
+//             
+            // Gravity
+            currentGravity += gravityModifier;            
+            if (currentGravity > maxGravity) currentGravity = maxGravity;            
             
+            float gravityY = camera.getMoveDownPosition(currentGravity);
+            
+            if (!myChunk.checkForCollision(-camera.position.x, -gravityY, -camera.position.z)) {
+                camera.moveDown(currentGravity);
+            } else {
+                currentGravity = 0f;                
+            }
+
             glLoadIdentity();
             
             // Look through the camera before drawing anything
-            camera.lookThrough();
+            camera.lookThrough();           
+            
+            // Light
+            //determines the speed of the sun
+            camera.rotateLight(0.1f);
+            
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             // Draw scene here
